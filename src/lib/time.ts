@@ -55,8 +55,8 @@ export function workdayIndex(date: Date): number {
   return Math.floor((weekStart(date) - 4) / 7) * 5 + wd; // Wochen relativ zu einer festen Referenz
 }
 
-/** Mo–Fr 6–19 Uhr (Berlin): nur dann fragt der TV-Modus die Datenbank ab */
+/** Mo–Fr 7–17 Uhr (Berlin): nur dann fragt der TV-Modus die Datenbank ab */
 export function isOfficeHours(date: Date): boolean {
   const { weekday, h } = berlinParts(date);
-  return weekday <= 4 && h >= 6 && h < 19;
+  return weekday <= 4 && h >= 7 && h < 17;
 }
