@@ -81,7 +81,7 @@ export default function LeaderboardPage() {
               Saison {MONTH}
             </p>
           </div>
-          <h1 className="display text-4xl sm:text-6xl lg:text-7xl">
+          <h1 className="display text-4xl leading-[1.3] sm:text-6xl sm:leading-[1.12] lg:text-7xl">
             Wer ist der größte<br /><span className="bg-gradient-to-r from-sun to-alarm bg-clip-text text-transparent">Troublemaker</span><br />bei Trihow?
           </h1>
         </div>

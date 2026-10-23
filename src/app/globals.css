@@ -147,7 +147,7 @@ body::after {
 .display {
   font-family: var(--f-display), Impact, sans-serif;
   letter-spacing: -0.01em;
-  line-height: 0.95;
+  line-height: 1.05;
   text-transform: uppercase;
 }
 .tabnum {
@@ -229,6 +229,7 @@ body::after {
   }
   .marquee-track { animation: none; }
 }
+
 
 
 
