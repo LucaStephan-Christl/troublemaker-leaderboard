@@ -27,7 +27,7 @@ export default function LeaderboardPage() {
   const { data, isLoading } = useSWR<LeaderboardResponse>(
     ["/api/leaderboard", period],
     ([p, per]: [string, Period]) => api<LeaderboardResponse>(`${p}?period=${per}`, null),
-    { refreshInterval: 5000, keepPreviousData: true },
+    { refreshInterval: 10_000, keepPreviousData: true },
   );
 
   // Überholmanöver erkennen: gleiche Periode, Rang hat sich zugunsten eines anderen verschoben

@@ -9,7 +9,7 @@ import { monthLabel, timeAgo } from "@/lib/format";
 import { BADGES, type IncidentDTO, type Insights } from "@/lib/types";
 
 export default function InsightsPage() {
-  const { data } = useSWR<Insights>("/api/insights", (p: string) => api<Insights>(p, null), { refreshInterval: 15000 });
+  const { data } = useSWR<Insights>("/api/insights", (p: string) => api<Insights>(p, null), { refreshInterval: 30_000 });
 
   return (
     <div className="space-y-12">

@@ -20,7 +20,7 @@ export default function TribunalPage() {
   const { data, isLoading, mutate } = useSWR<TribunalResponse>(
     ["/api/tribunal", me],
     ([p, m]: [string, string | null]) => api<TribunalResponse>(p, m),
-    { refreshInterval: 5000, keepPreviousData: true },
+    { refreshInterval: 10_000, keepPreviousData: true },
   );
 
   const [gone, setGone] = useState<Set<string>>(new Set());

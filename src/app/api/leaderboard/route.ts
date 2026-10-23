@@ -14,5 +14,5 @@ export async function GET(req: Request) {
     recent: list.slice(0, 12),
     pendingCount,
   };
-  return json(body);
+  return json(body, 200, { shared: true });
 }

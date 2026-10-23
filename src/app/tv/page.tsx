@@ -8,16 +8,31 @@ import { CountUp, Avatar, nameOf } from "@/components/ui";
 import { COWORKER_BY_ID } from "@/config/coworkers";
 import { api } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
+import { isOfficeHours } from "@/lib/time";
 import type { Insights, LeaderboardResponse } from "@/lib/types";
 
 const SLIDE_MS = 12000;
 const SLIDES = ["Rangliste", "Letzte Fälle", "Hall of Shame"] as const;
+// Der TV läuft 24/7: nur zu Bürozeiten und selten abfragen, damit Datenbank & Funktionen nachts schlafen können.
+const POLL_MS = 30_000;
+const POLL_INSIGHTS_MS = 60_000;
 
 export default function TvPage() {
   const [slide, setSlide] = useState(0);
   const [tick, setTick] = useState(0);
-  const { data: lb } = useSWR<LeaderboardResponse>("/api/leaderboard?period=month", (p: string) => api<LeaderboardResponse>(p, null), { refreshInterval: 5000 });
-  const { data: ins } = useSWR<Insights>("/api/insights", (p: string) => api<Insights>(p, null), { refreshInterval: 15000 });
+  const [office, setOffice] = useState(() => isOfficeHours(new Date()));
+  useEffect(() => {
+    const t = setInterval(() => setOffice(isOfficeHours(new Date())), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const { data: lb } = useSWR<LeaderboardResponse>("/api/leaderboard?period=month", (p: string) => api<LeaderboardResponse>(p, null), {
+    refreshInterval: office ? POLL_MS : 0,
+    revalidateOnFocus: false,
+  });
+  const { data: ins } = useSWR<Insights>("/api/insights", (p: string) => api<Insights>(p, null), {
+    refreshInterval: office ? POLL_INSIGHTS_MS : 0,
+    revalidateOnFocus: false,
+  });
 
   useEffect(() => {
     const t = setInterval(() => { setSlide((s) => (s + 1) % SLIDES.length); setTick((k) => k + 1); }, SLIDE_MS);
@@ -33,7 +48,9 @@ export default function TvPage() {
         <h1 className="display text-3xl sm:text-5xl">👑 Mobbing<span className="text-sun">-</span>Board <span className="text-alarm">live</span></h1>
         <div className="flex items-center gap-4 text-right">
           <span className="hidden text-sm font-extrabold uppercase tracking-widest text-sun sm:block">Saison {month}</span>
-          <span className="flex items-center gap-2 text-sm font-bold uppercase"><span className="pulse-ring inline-block h-3 w-3 rounded-full bg-alarm" /> Live</span>
+          <span className="flex items-center gap-2 text-sm font-bold uppercase">
+            {office ? <><span className="pulse-ring inline-block h-3 w-3 rounded-full bg-alarm" /> Live</> : <>🌙 Feierabend</>}
+          </span>
           <Link href="/" className="text-xs underline opacity-50 hover:opacity-100">zurück</Link>
         </div>
       </header>

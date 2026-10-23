@@ -7,8 +7,13 @@ import type { IncidentDTO } from "./types";
 
 const { incidents, votes, customCategories } = schema;
 
-export function json(data: unknown, status = 200) {
-  return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
+/**
+ * `shared`: öffentliche, für alle gleiche Antwort – darf kurz im Vercel-CDN liegen.
+ * So teilen sich alle offenen Tabs (und der TV) wenige Funktionsaufrufe und Datenbankzugriffe.
+ */
+export function json(data: unknown, status = 200, opts?: { shared?: boolean }) {
+  const cache = opts?.shared ? "public, s-maxage=10, stale-while-revalidate=20" : "no-store";
+  return Response.json(data, { status, headers: { "Cache-Control": cache } });
 }
 
 export function fail(message: string, status = 400) {

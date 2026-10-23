@@ -49,7 +49,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 function useTicker() {
   const { me } = useApp();
   return useSWR<TickerResponse>(["/api/ticker", me], ([p, m]: [string, string | null]) => api<TickerResponse>(p, m), {
-    refreshInterval: 6000,
+    refreshInterval: 10_000,
     keepPreviousData: true,
   });
 }
