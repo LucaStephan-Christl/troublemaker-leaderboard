@@ -87,8 +87,8 @@ function BoardSlide({ lb }: { lb?: LeaderboardResponse }) {
       {top.map((e, i) => (
         <motion.li key={e.id} layout initial={{ opacity: 0, x: -60 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08, type: "spring", stiffness: 300, damping: 28 }} className="flex items-center gap-5">
           <span className="display w-14 text-center text-5xl text-sun">{i === 0 ? "👑" : e.rank}</span>
-          <Avatar id={e.id} size={i === 0 ? 84 : 64} />
-          <span className="display w-44 truncate text-3xl sm:text-4xl">{nameOf(e.id)}</span>
+          <span className="grid w-[84px] shrink-0 place-items-center"><Avatar id={e.id} size={i === 0 ? 84 : 64} /></span>
+          <span className="display w-56 shrink-0 text-3xl sm:w-72 sm:text-4xl">{nameOf(e.id)}</span>
           <span className="relative h-9 flex-1 border-[3px] border-paper/60">
             <motion.span className="absolute inset-y-0 left-0" style={{ background: i === 0 ? "var(--sun)" : COWORKER_BY_ID[e.id]?.color }} initial={{ width: 0 }} animate={{ width: `${(e.points / max) * 100}%` }} transition={{ duration: 1.1, delay: 0.2 + i * 0.08, ease: [0.16, 1, 0.3, 1] }} />
           </span>
