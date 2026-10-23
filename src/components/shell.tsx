@@ -63,10 +63,10 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-paper">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-        <Link href="/" className="group flex items-center gap-2" aria-label="Mobbing-Leaderboard – Startseite">
+        <Link href="/" className="group flex items-center gap-2" aria-label="Troublemaker-Board – Startseite">
           <span className="grid h-11 w-11 -rotate-6 place-items-center border-[3px] border-ink bg-paper shadow-[3px_3px_0_var(--ink)] transition-transform group-hover:rotate-6"><TrihowMark size={30} /></span>
-          <span className="display text-xl leading-none sm:text-2xl">
-            Mobbing<span className="text-alarm">-</span>
+          <span className="display text-base leading-none sm:text-2xl">
+            Troublemaker<span className="text-alarm">-</span>
             <br className="sm:hidden" />
             Board
           </span>

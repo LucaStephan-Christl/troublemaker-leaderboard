@@ -52,9 +52,9 @@ export type Profile = {
   incidents: number;
   timesVictim: number;
   favoriteCategory: { label: string; emoji: string; count: number } | null;
-  /** Wen die Person am häufigsten mobbt */
+  /** Wen die Person am häufigsten ärgert */
   nemesisId: string | null;
-  /** Wer die Person am häufigsten mobbt */
+  /** Wer die Person am häufigsten ärgert */
   archEnemyId: string | null;
   confessions: number;
   longestStreak: number;

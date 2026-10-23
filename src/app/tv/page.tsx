@@ -57,7 +57,7 @@ export default function TvPage() {
     <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-ink text-paper">
       <div className="hazard h-4 shrink-0" />
       <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-8 py-4">
-        <h1 className="display flex items-center gap-4 text-3xl sm:text-5xl"><TrihowMark size={56} invert className="wiggle" /> Mobbing<span className="text-paper">-</span>Board <span className="text-alarm">live</span></h1>
+        <h1 className="display flex items-center gap-4 text-3xl sm:text-5xl"><TrihowMark size={56} invert className="wiggle" /> Troublemaker<span className="text-paper">-</span>Board <span className="text-alarm">live</span></h1>
         <div className="flex flex-wrap items-center justify-end gap-4 text-right">
           <span className="hidden text-sm font-extrabold uppercase tracking-widest text-paper xl:block">Saison {month}</span>
           <RefreshBadge dark updatedAt={updatedAt} intervalMs={POLL_MS} paused={!office} pausedLabel="Feierabend" onRefresh={refresh} className="w-60 shrink-0 text-left" />

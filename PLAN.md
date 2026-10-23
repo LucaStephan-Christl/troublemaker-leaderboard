@@ -1,8 +1,8 @@
-# 🏆 Mobbing Leaderboard — Plan & Tech Stack
+# 🏆 Troublemaker Board — Plan & Tech Stack
 
-A joke web app that replaces the office whiteboard: coworkers submit "mobbing incidents"
-(harmless office pranks and bullying-as-a-bit), one other coworker has to confirm each one,
-and a very animated leaderboard crowns the **Mobbing-König:in**.
+A joke web app that replaces the office whiteboard: coworkers submit "troublemaker incidents"
+(harmless office pranks and teasing), one other coworker has to confirm each one,
+and a very animated leaderboard crowns the **Troublemaker of the month**.
 
 > Tone: Schadenfreude, not actual harm. Incident types are curated by us (see below), every
 > incident needs a second person's OK, and anything that's not funny can be rejected.

@@ -112,7 +112,7 @@ function Content({ data }: { data: Insights }) {
 
       {data.monthlyWinners.length > 0 && (
         <section>
-          <SectionTitle kicker="Ruhmeshalle">Mobbing-Könige der Vormonate</SectionTitle>
+          <SectionTitle kicker="Ruhmeshalle">Troublemaker der Vormonate</SectionTitle>
           <ul className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
             {data.monthlyWinners.slice(0, 6).map((w) => (
               <li key={w.month} className="brut-sm flex items-center gap-3 bg-paper p-3">

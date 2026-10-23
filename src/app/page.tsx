@@ -81,8 +81,8 @@ export default function LeaderboardPage() {
               Saison {MONTH}
             </p>
           </div>
-          <h1 className="display text-5xl sm:text-7xl">
-            Wer mobbt<br />am meisten<br />bei <span className="bg-gradient-to-r from-sun to-alarm bg-clip-text text-transparent">Trihow?</span>
+          <h1 className="display text-4xl sm:text-6xl lg:text-7xl">
+            Wer ist der größte<br /><span className="bg-gradient-to-r from-sun to-alarm bg-clip-text text-transparent">Troublemaker</span><br />bei Trihow?
           </h1>
         </div>
         <div className="flex flex-col gap-3 sm:items-end">

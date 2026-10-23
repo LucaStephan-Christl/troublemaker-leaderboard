@@ -7,8 +7,8 @@ const display = Bowlby_One({ weight: "400", subsets: ["latin"], variable: "--f-d
 const body = Bricolage_Grotesque({ subsets: ["latin"], variable: "--f-body" });
 
 export const metadata: Metadata = {
-  title: "Mobbing-Board bei Trihow",
-  description: "Wer mobbt am meisten bei Trihow? Fälle melden, bestätigen lassen, Krone kassieren.",
+  title: "Troublemaker-Board bei Trihow",
+  description: "Wer ist der größte Troublemaker bei Trihow? Fälle melden, bestätigen lassen, Krone kassieren.",
   robots: { index: false, follow: false },
 };
 

@@ -1,6 +1,6 @@
-# 🏆 Mobbing-Board
+# 🏆 Troublemaker-Board
 
-Das Büro-Mobbing-Leaderboard als Web-App: Fälle melden, von einer anderen Person im **Tribunal** bestätigen lassen, und eine ziemlich animierte Rangliste kürt den/die **Mobbing-König:in**.
+Das Büro-Troublemaker-Leaderboard als Web-App: Fälle melden, von einer anderen Person im **Tribunal** bestätigen lassen, und eine ziemlich animierte Rangliste kürt den/die **Troublemaker:in** des Monats.
 
 Plan, Regeln und Datenmodell: [PLAN.md](PLAN.md)
 
