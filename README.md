@@ -11,7 +11,7 @@ Plan, Regeln und Datenmodell: [PLAN.md](PLAN.md)
 | Route | Was |
 |---|---|
 | `/` | Rangliste mit Podium, animierten Rangwechseln, Überhol-Konfetti (Woche / Monat / Gesamt) |
-| `/melden` | Fall melden: Täter:in (mit Roulette 🎰), Opfer, Kategorie (oder eigene anlegen), Notiz |
+| `/melden` | Fall melden: Täter:in (Namenssuche + Roulette 🎰), Opfer, Kategorie (Suche oder neu anlegen), Notiz |
 | `/tribunal` | Offene Fälle per Swipe oder ← → bestätigen/ablehnen, eigene Fälle im Blick |
 | `/insights` | Hall of Shame: Fall aller Zeiten, Opfer des Monats, Rivalen-Duell, Heatmap, Punkte-Rennen, Abzeichen |
 | `/tv` | Vollbild-Modus für den Büro-Bildschirm (rotiert automatisch) |
@@ -23,7 +23,7 @@ Plan, Regeln und Datenmodell: [PLAN.md](PLAN.md)
 - Wer einen Fall gemeldet hat und wer abgestimmt hat, wird nie angezeigt (die API liefert es gar nicht aus).
 - Bestätigt der/die Beschuldigte den Fall selbst, ist das ein **Geständnis** (+10 % Punkte).
 - Maximal 10 Meldungen pro Person und 24 h.
-- Kategorien: Start-Set in `src/config/categories.ts`; jede:r kann in der App eigene anlegen (1–10 Punkte).
+- Kategorien gibt es nur, wenn jemand sie in der App anlegt (Name, Emoji, 1–10 Punkte). Beim Melden lassen sie sich durchsuchen; findet die Suche nichts, kann man den Suchbegriff direkt als neue Kategorie anlegen. Die Demo-Kategorien stehen nur im Dev-Seed.
 - Ton ist standardmäßig aus (🔇 oben rechts) – alle Sounds werden live synthetisiert.
 
 ## Team anpassen
@@ -39,7 +39,7 @@ npm run dev
 ```
 
 Ohne `DATABASE_URL` läuft lokal ein eingebettetes Postgres (PGlite, Daten in `.data/`, gelöscht mit `npm run db:reset-local`) – keine Installation nötig.
-Fake-Daten für Tests/Screenshots: `curl -X POST localhost:3000/api/dev/seed` (nur in Entwicklung verfügbar).
+Fake-Daten (inkl. Demo-Kategorien) für Tests/Screenshots: `curl -X POST localhost:3000/api/dev/seed` (nur in Entwicklung verfügbar).
 
 ```bash
 npm test          # Regeln (Vitest)

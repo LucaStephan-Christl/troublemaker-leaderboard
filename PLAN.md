@@ -78,8 +78,8 @@ and a very animated leaderboard crowns the **Mobbing-König:in**.
 
 ## 4. Data model (Drizzle / Postgres)
 
-Hardcoded in code (no tables): **coworkers**, starter **categories** (id, label, emoji, points).
-Extra table `custom_categories` for categories coworkers create in the app.
+Hardcoded in code (no tables): **coworkers**.
+Table `custom_categories` holds all categories (created in the app).
 
 ```
 incidents
@@ -145,7 +145,7 @@ src/
 
 1. Coworker names + photos: provided later → placeholders in `src/config/coworkers.ts`.
 2. **German UI.**
-3. Categories are **self-defined**: starter set in config, plus anyone can add categories in the app (1–10 points).
+3. Categories are **100 % user-created** (no built-in list): anyone can add one in the app (1–10 points), the picker is searchable and can create the searched term. Person pickers are searchable too.
 4. **Honor system only** — no PIN, no passcode.
 5. **Neon Postgres via Vercel** + Drizzle (local dev uses embedded PGlite, so no setup needed).
 6. **Polling** (SWR, ~5 s), everything in one Next.js app.
