@@ -1,7 +1,24 @@
 import { COWORKERS } from "@/config/coworkers";
-import { DEFAULT_CATEGORIES } from "@/config/categories";
+import type { Category } from "@/config/categories";
 import { schema } from "@/db";
 import { fail, getDb, json } from "@/lib/server";
+
+const DEMO_CATEGORIES: Category[] = [
+  { id: "stuhl-versteckt", label: "Stuhl versteckt", emoji: "🪑", points: 3 },
+  { id: "kaffee-leer", label: "Kaffeemaschine leer gelassen", emoji: "☕", points: 2 },
+  { id: "mittagessen-geklaut", label: "Mittagessen „geliehen“", emoji: "🥪", points: 5 },
+  { id: "meeting-gesprengt", label: "Meeting gesprengt", emoji: "🙄", points: 4 },
+  { id: "peinliches-foto", label: "Peinliches Foto im Teamchat", emoji: "📸", points: 6 },
+  { id: "hintergrundbild", label: "Hintergrundbild umgestellt", emoji: "🖼️", points: 4 },
+  { id: "laut-telefoniert", label: "Laut telefoniert im Großraum", emoji: "📢", points: 3 },
+  { id: "tastatur-layout", label: "Tastatur-Layout verstellt", emoji: "⌨️", points: 5 },
+  { id: "frischhaltefolie", label: "Schreibtisch in Folie gewickelt", emoji: "🎁", points: 8 },
+  { id: "airhorn", label: "Airhorn im Büro", emoji: "🎺", points: 7 },
+  { id: "antwort-an-alle", label: "„Antwort an alle“-Desaster", emoji: "📧", points: 5 },
+  { id: "kuchen-allein", label: "Geburtstagskuchen allein gegessen", emoji: "🍰", points: 9 },
+  { id: "ticket-zugeschoben", label: "Ticket heimlich zugeschoben", emoji: "🎫", points: 6 },
+  { id: "ladekabel", label: "Ladekabel entführt", emoji: "🔌", points: 4 },
+];
 
 /** Nur für die lokale Entwicklung: füllt die DB mit Fake-Fällen für Screenshots & Tests. */
 export async function POST() {
@@ -22,6 +39,8 @@ export async function POST() {
 
   await db.delete(schema.votes);
   await db.delete(schema.incidents);
+  await db.delete(schema.customCategories);
+  await db.insert(schema.customCategories).values(DEMO_CATEGORIES);
 
   const rows: (typeof schema.incidents.$inferInsert)[] = [];
   const now = Date.now();
@@ -31,7 +50,7 @@ export async function POST() {
     while (victimId === accusedId) victimId = pick(COWORKERS).id;
     let submittedBy = pick(COWORKERS).id;
     while (submittedBy === accusedId) submittedBy = pick(COWORKERS).id;
-    const cat = pick(DEFAULT_CATEGORIES);
+    const cat = pick(DEMO_CATEGORIES);
     const daysAgo = Math.floor(Math.pow(rnd(), 1.4) * 60);
     const created = new Date(now - daysAgo * 86_400_000);
     while ([0, 6].includes(created.getDay())) created.setDate(created.getDate() - 1); // Büro: nur Werktage
@@ -56,7 +75,7 @@ export async function POST() {
     while (victimId === accusedId) victimId = pick(COWORKERS).id;
     let submittedBy = pick(COWORKERS).id;
     while (submittedBy === accusedId) submittedBy = pick(COWORKERS).id;
-    const cat = pick(DEFAULT_CATEGORIES);
+    const cat = pick(DEMO_CATEGORIES);
     rows.push({ accusedId, victimId, categoryId: cat.id, points: cat.points, submittedBy, status: "pending" });
   }
   await db.insert(schema.incidents).values(rows);

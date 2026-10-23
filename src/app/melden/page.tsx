@@ -8,7 +8,7 @@ import { Avatar, nameOf, SectionTitle, Stamp } from "@/components/ui";
 import { MAX_CATEGORY_POINTS, MIN_CATEGORY_POINTS, type Category } from "@/config/categories";
 import { COWORKERS } from "@/config/coworkers";
 import { api } from "@/lib/api";
-import { cn } from "@/lib/format";
+import { cn, normalize } from "@/lib/format";
 import { confettiBurst } from "@/lib/fx";
 import { MAX_NOTE_LENGTH } from "@/lib/rules";
 
@@ -24,11 +24,20 @@ export default function MeldenPage() {
   const [busy, setBusy] = useState(false);
   const [stamped, setStamped] = useState(false);
   const [spinning, setSpinning] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [draft, setDraft] = useState<{ label: string; nonce: number } | null>(null);
   const spinTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const category = categories?.find((c) => c.id === categoryId) ?? null;
   const others = useMemo(() => COWORKERS.filter((c) => c.id !== me), [me]);
   const ready = !!(accused && victim && category) && accused !== victim;
+
+  const q = normalize(query);
+  const visible = useMemo(() => {
+    const list = [...(categories ?? [])].reverse(); // neueste zuerst
+    return q ? list.filter((c) => normalize(c.label).includes(q)) : list;
+  }, [categories, q]);
+  const exactMatch = !!categories?.some((c) => normalize(c.label) === q);
 
   /** Roulette: Highlight springt durch alle Kandidaten und bremst ab */
   const spin = useCallback(() => {
@@ -97,20 +106,57 @@ export default function MeldenPage() {
           </SectionTitle>
           <button className="btn btn-ink mb-4" onClick={spin} disabled={!!spinning}>🎰 Roulette</button>
         </div>
-        <PersonGrid people={others.filter((c) => c.id !== victim)} value={accused} spinning={spinning} onPick={(id) => { sfx("pop"); setAccused(id); }} tone="alarm" />
+        <PersonGrid people={others.filter((c) => c.id !== victim)} value={accused} spinning={spinning} onPick={(id) => { sfx("pop"); setAccused(id); }} tone="alarm" label="Täter:in suchen" />
       </section>
 
       <section aria-labelledby="s2">
         <SectionTitle kicker="Schritt 2"><span id="s2">Wen hat&apos;s erwischt?</span></SectionTitle>
-        <PersonGrid people={COWORKERS.filter((c) => c.id !== accused)} value={victim} onPick={(id) => { sfx("pop"); setVictim(id); }} tone="sky" meId={me} />
+        <PersonGrid people={COWORKERS.filter((c) => c.id !== accused)} value={victim} onPick={(id) => { sfx("pop"); setVictim(id); }} tone="sky" meId={me} label="Opfer suchen" />
       </section>
 
       <section aria-labelledby="s3">
         <SectionTitle kicker="Schritt 3"><span id="s3">Was ist passiert?</span></SectionTitle>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-          {categories?.map((c) => (
+        <label className="relative mb-4 block">
+          <span className="sr-only">Kategorien durchsuchen</span>
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xl" aria-hidden>🔎</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={categories?.length ? `${categories.length} Kategorien durchsuchen …` : "Kategorie suchen oder neu anlegen …"}
+            className="brut-sm w-full bg-paper py-3 pl-11 pr-3 text-base placeholder:opacity-50"
+          />
+        </label>
+
+        <div className="grid max-h-[34rem] grid-cols-2 gap-3 overflow-y-auto p-1 md:grid-cols-3">
+          {query.trim().length >= 2 && !exactMatch && !draft && (
+            <motion.button
+              whileHover={{ y: -3 }}
+              onClick={() => setDraft({ label: capitalize(query.trim()), nonce: Date.now() })}
+              className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-sun/60 p-3 text-center font-extrabold hover:bg-sun"
+            >
+              <span className="text-3xl" aria-hidden>＋</span>
+              <span className="leading-tight">„{query.trim()}“ neu anlegen</span>
+            </motion.button>
+          )}
+          {draft && (
+            <NewCategory
+              key={draft.nonce}
+              initialLabel={draft.label}
+              onClose={() => setDraft(null)}
+              onCreated={async (c) => {
+                setDraft(null);
+                setQuery("");
+                await reloadCategories();
+                setCategoryId(c.id);
+                toast({ emoji: c.emoji, title: "Neue Kategorie angelegt", body: `${c.label} (+${c.points})` });
+              }}
+            />
+          )}
+          {visible.map((c) => (
             <motion.button
               key={c.id}
+              layout
               whileHover={{ y: -3, rotate: -1 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => { sfx("pop"); setCategoryId(c.id); }}
@@ -118,20 +164,28 @@ export default function MeldenPage() {
               className={cn("brut-sm relative flex min-h-28 flex-col items-start gap-1 p-3 text-left transition-colors", categoryId === c.id ? "bg-sun" : "bg-paper hover:bg-white/50")}
             >
               <span className="text-3xl" aria-hidden>{c.emoji}</span>
-              <span className="text-sm font-extrabold leading-tight">{c.label}</span>
+              <span className="pr-8 text-sm font-extrabold leading-tight">{c.label}</span>
               <span className="display absolute right-2 top-2 border-2 border-ink bg-alarm px-1.5 py-0.5 text-sm text-paper">+{c.points}</span>
-              {c.custom && <span className="text-[0.65rem] font-bold uppercase opacity-60">selbst angelegt</span>}
               {categoryId === c.id && <span className="absolute bottom-2 right-3 text-xl" aria-hidden>✔️</span>}
             </motion.button>
           ))}
-          <NewCategory
-            onCreated={async (c) => {
-              await reloadCategories();
-              setCategoryId(c.id);
-              toast({ emoji: c.emoji, title: "Neue Kategorie angelegt", body: `${c.label} (+${c.points})` });
-            }}
-          />
+          {!draft && query.trim().length < 2 && (
+            <motion.button
+              whileHover={{ y: -3 }}
+              onClick={() => setDraft({ label: "", nonce: Date.now() })}
+              className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-transparent p-3 font-extrabold hover:bg-sun/50"
+            >
+              <span className="text-3xl" aria-hidden>＋</span>
+              Eigene Kategorie
+            </motion.button>
+          )}
         </div>
+        {categories && categories.length === 0 && !draft && (
+          <p className="mt-3 text-sm opacity-70">Noch keine Kategorien – leg die erste an. Ab dann kann jede:r sie nutzen und durchsuchen.</p>
+        )}
+        {categories && categories.length > 0 && visible.length === 0 && query.trim().length >= 2 && (
+          <p className="mt-3 text-sm opacity-70" aria-live="polite">Nichts gefunden. Leg „{query.trim()}“ einfach neu an.</p>
+        )}
       </section>
 
       <section aria-labelledby="s4">
@@ -186,6 +240,7 @@ function PersonGrid({
   spinning,
   tone,
   meId,
+  label,
 }: {
   people: typeof COWORKERS;
   value: string | null;
@@ -193,40 +248,71 @@ function PersonGrid({
   spinning?: string | null;
   tone: "alarm" | "sky";
   meId?: string | null;
+  label: string;
 }) {
+  const [q, setQ] = useState("");
+  const nq = normalize(q);
+  const shown = nq ? people.filter((c) => normalize(c.name).includes(nq)) : people;
   return (
-    <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8" role="radiogroup">
-      {people.map((c) => {
-        const selected = value === c.id;
-        const lit = spinning === c.id;
-        return (
-          <motion.button
-            key={c.id}
-            role="radio"
-            aria-checked={selected}
-            whileTap={{ scale: 0.92 }}
-            animate={selected ? { scale: 1.06, rotate: -2 } : { scale: lit ? 1.12 : 1, rotate: 0 }}
-            onClick={() => onPick(c.id)}
-            className={cn(
-              "flex min-h-24 flex-col items-center justify-center gap-1.5 border-[3px] border-ink p-2 transition-colors",
-              selected || lit ? (tone === "alarm" ? "bg-alarm text-paper" : "bg-sky") : "bg-paper hover:bg-sun",
-              (selected || lit) && "shadow-[4px_4px_0_var(--ink)]",
-            )}
-          >
-            <Avatar id={c.id} size={44} />
-            <span className="max-w-full truncate text-xs font-extrabold">{c.name}{meId === c.id ? " (du)" : ""}</span>
-          </motion.button>
-        );
-      })}
+    <div>
+      <label className="relative mb-3 block max-w-xs">
+        <span className="sr-only">{label}</span>
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" aria-hidden>🔎</span>
+        <input
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && shown.length === 1) {
+              onPick(shown[0].id);
+              setQ("");
+            }
+          }}
+          placeholder="Name suchen …"
+          className="brut-sm w-full bg-paper py-2 pl-9 pr-3 text-base placeholder:opacity-50"
+        />
+      </label>
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8" role="radiogroup" aria-label={label}>
+        {shown.map((c) => {
+          const selected = value === c.id;
+          const lit = spinning === c.id;
+          return (
+            <motion.button
+              key={c.id}
+              role="radio"
+              aria-checked={selected}
+              whileTap={{ scale: 0.92 }}
+              animate={selected ? { scale: 1.06, rotate: -2 } : { scale: lit ? 1.12 : 1, rotate: 0 }}
+              onClick={() => onPick(c.id)}
+              className={cn(
+                "flex min-h-24 flex-col items-center justify-center gap-1.5 border-[3px] border-ink p-2 transition-colors",
+                selected || lit ? (tone === "alarm" ? "bg-alarm text-paper" : "bg-sky") : "bg-paper hover:bg-sun",
+                (selected || lit) && "shadow-[4px_4px_0_var(--ink)]",
+              )}
+            >
+              <Avatar id={c.id} size={44} />
+              <span className="max-w-full truncate text-xs font-extrabold">{c.name}{meId === c.id ? " (du)" : ""}</span>
+            </motion.button>
+          );
+        })}
+        {shown.length === 0 && <p className="col-span-full text-sm opacity-70">Niemanden mit diesem Namen gefunden.</p>}
+      </div>
     </div>
   );
 }
 
-function NewCategory({ onCreated }: { onCreated: (c: Category) => void | Promise<void> }) {
+function NewCategory({
+  initialLabel,
+  onCreated,
+  onClose,
+}: {
+  initialLabel: string;
+  onCreated: (c: Category) => void | Promise<void>;
+  onClose: () => void;
+}) {
   const { me, toast, sfx } = useApp();
-  const [open, setOpen] = useState(false);
   const [emoji, setEmoji] = useState("🤡");
-  const [label, setLabel] = useState("");
+  const [label, setLabel] = useState(initialLabel);
   const [points, setPoints] = useState(4);
   const [busy, setBusy] = useState(false);
 
@@ -235,8 +321,6 @@ function NewCategory({ onCreated }: { onCreated: (c: Category) => void | Promise
     try {
       const c = await api<Category>("/api/categories", me, { method: "POST", body: JSON.stringify({ label, emoji, points }) });
       sfx("fanfare");
-      setOpen(false);
-      setLabel("");
       await onCreated(c);
     } catch (e) {
       toast({ emoji: "🚫", title: "Klappt nicht", body: e instanceof Error ? e.message : "Fehler" });
@@ -245,29 +329,23 @@ function NewCategory({ onCreated }: { onCreated: (c: Category) => void | Promise
     }
   }
 
-  if (!open) {
-    return (
-      <motion.button whileHover={{ y: -3 }} onClick={() => setOpen(true)} className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-transparent p-3 font-extrabold hover:bg-sun/50">
-        <span className="text-3xl" aria-hidden>＋</span>
-        Eigene Kategorie
-      </motion.button>
-    );
-  }
   return (
     <div className="brut-sm col-span-2 flex flex-col gap-3 bg-sun/60 p-3 md:col-span-3">
       <p className="font-extrabold uppercase">Neue Kategorie</p>
       <div className="flex gap-2">
-        <input aria-label="Emoji" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={4} className="w-16 border-[3px] border-ink bg-paper p-2 text-center text-2xl" />
-        <input aria-label="Name" value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} placeholder="z. B. Kekse im Meeting aufgegessen" className="min-w-0 flex-1 border-[3px] border-ink bg-paper p-2 text-base" />
+        <input aria-label="Emoji" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={8} className="w-16 border-[3px] border-ink bg-paper p-2 text-center text-2xl" />
+        <input aria-label="Name" autoFocus={!initialLabel} value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} placeholder="z. B. Kekse im Meeting aufgegessen" className="min-w-0 flex-1 border-[3px] border-ink bg-paper p-2 text-base" />
       </div>
       <label className="flex items-center gap-3 text-sm font-bold">
         Punkte: <span className="display w-8 text-center text-2xl text-alarm">{points}</span>
         <input type="range" min={MIN_CATEGORY_POINTS} max={MAX_CATEGORY_POINTS} value={points} onChange={(e) => setPoints(+e.target.value)} className="flex-1 accent-[var(--alarm)]" />
       </label>
       <div className="flex gap-2">
-        <button className="btn btn-alarm flex-1" disabled={busy || label.trim().length < 2} onClick={create}>Anlegen</button>
-        <button className="btn btn-ghost" onClick={() => setOpen(false)}>Abbrechen</button>
+        <button className="btn btn-alarm flex-1" disabled={busy || label.trim().length < 2 || !emoji.trim()} onClick={create}>Anlegen</button>
+        <button className="btn btn-ghost" onClick={onClose}>Abbrechen</button>
       </div>
     </div>
   );
 }
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

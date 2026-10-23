@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, gte, ne, notInArray, sql } from "drizzle-orm";
-import { DEFAULT_CATEGORIES, type Category } from "@/config/categories";
+import type { Category } from "@/config/categories";
 import { isCoworkerId } from "@/config/coworkers";
 import { getDb, schema, type Db } from "@/db";
 import { effectivePoints } from "./rules";
@@ -26,12 +26,10 @@ export function getMe(req: Request): string | null {
   return isCoworkerId(id) ? id : null;
 }
 
+/** Kategorien gibt es nur, wenn Kolleg:innen sie in der App angelegt haben. */
 export async function getCategories(db: Db): Promise<Category[]> {
-  const custom = await db.select().from(customCategories).orderBy(asc(customCategories.createdAt));
-  return [
-    ...DEFAULT_CATEGORIES,
-    ...custom.map((c) => ({ id: c.id, label: c.label, emoji: c.emoji, points: c.points, custom: true })),
-  ];
+  const rows = await db.select().from(customCategories).orderBy(asc(customCategories.createdAt));
+  return rows.map((c) => ({ id: c.id, label: c.label, emoji: c.emoji, points: c.points }));
 }
 
 export function toDTO(row: typeof incidents.$inferSelect, cats: Map<string, Category>): IncidentDTO {

@@ -19,3 +19,8 @@ export function monthLabel(key: string): string {
 export const cn = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
 
 export const pts = (n: number) => `${n} ${n === 1 ? "Punkt" : "Punkte"}`;
+
+/** Suche ohne Groß-/Kleinschreibung und Umlaut-Unterschiede */
+export function normalize(s: string): string {
+  return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
+}

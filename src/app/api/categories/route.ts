@@ -26,5 +26,5 @@ export async function POST(req: Request) {
   }
   const id = `c-${crypto.randomUUID().slice(0, 8)}`;
   await db.insert(schema.customCategories).values({ id, ...parsed.data });
-  return json({ id, ...parsed.data, custom: true }, 201);
+  return json({ id, ...parsed.data }, 201);
 }

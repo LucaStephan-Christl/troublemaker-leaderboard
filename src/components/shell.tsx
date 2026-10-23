@@ -3,11 +3,11 @@
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { COWORKERS } from "@/config/coworkers";
 import { api } from "@/lib/api";
-import { cn } from "@/lib/format";
+import { cn, normalize } from "@/lib/format";
 import type { TickerResponse } from "@/lib/types";
 import { AppProvider, useApp } from "./providers";
 import { Avatar, nameOf } from "./ui";
@@ -225,6 +225,10 @@ function Toasts() {
 /* ---------- „Wer bist du?“ ---------- */
 function IdentityGate() {
   const { setMe, sfx } = useApp();
+  const [q, setQ] = useState("");
+  const nq = normalize(q);
+  const shown = nq ? COWORKERS.filter((c) => normalize(c.name).includes(nq)) : COWORKERS;
+  const choose = (id: string) => { sfx("pop"); setMe(id); };
   return (
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-ink/80 p-4 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="who">
       <motion.div
@@ -238,8 +242,22 @@ function IdentityGate() {
         <p className="mb-6 mt-3 max-w-prose">
           Keine Accounts, keine Passwörter – reine Ehrensache. Wir vertrauen dir. <span className="opacity-60">(Nicht wirklich.)</span>
         </p>
+        <label className="relative mb-4 block">
+          <span className="sr-only">Name suchen</span>
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xl" aria-hidden>🔎</span>
+          <input
+            type="search"
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && shown.length === 1) choose(shown[0].id); }}
+            placeholder="Name suchen …"
+            className="brut-sm w-full bg-paper py-3 pl-11 pr-3 text-base placeholder:opacity-50"
+          />
+        </label>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
-          {COWORKERS.map((c, idx) => (
+          {shown.length === 0 && <p className="col-span-full opacity-70">Niemanden mit diesem Namen gefunden.</p>}
+          {shown.map((c, idx) => (
             <motion.button
               key={c.id}
               initial={{ opacity: 0, y: 14 }}
@@ -247,7 +265,7 @@ function IdentityGate() {
               transition={{ delay: 0.05 * idx }}
               whileHover={{ y: -4, rotate: idx % 2 ? 2 : -2 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { sfx("pop"); setMe(c.id); }}
+              onClick={() => choose(c.id)}
               className="brut-sm flex min-h-24 flex-col items-center justify-center gap-2 bg-paper p-2 hover:bg-sun"
             >
               <Avatar id={c.id} size={56} />
