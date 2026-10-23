@@ -154,5 +154,5 @@ src/
 
 - [x] Milestones 1–5 implemented (core loop, animations, insights, TV mode).
 - [x] Real coworker list (first names; photos still to come).
-- [ ] Photos in `public/avatars/`.
+- [x] Avatars: gender-matching person emojis instead of photos (photos remain optional via `photo`).
 - [ ] Vercel project + Neon integration (milestone 6). The Neon migration path (`scripts/migrate.mts`) is written but not yet run against a real Neon DB.
