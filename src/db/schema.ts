@@ -14,6 +14,7 @@ export const customCategories = pgTable("custom_categories", {
   label: text("label").notNull(),
   emoji: text("emoji").notNull(),
   points: integer("points").notNull(),
+  description: text("description"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

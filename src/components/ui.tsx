@@ -10,7 +10,7 @@ export function Avatar({ id, size = 48, className }: { id: string; size?: number
   return (
     <span
       className={cn("relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full border-[3px] border-ink", className)}
-      style={{ width: size, height: size, background: c?.color ?? "#ccc", fontSize: size * 0.52 }}
+      style={{ width: size, height: size, background: c?.color ?? "#E5E5E5", fontSize: size * 0.52 }}
       role="img"
       aria-label={c?.name ?? id}
     >
@@ -21,6 +21,14 @@ export function Avatar({ id, size = 48, className }: { id: string; size?: number
         <span aria-hidden className="leading-none">{c?.emoji ?? "?"}</span>
       )}
     </span>
+  );
+}
+
+/** Trihow-Logo (Raute). `invert` für dunkle Hintergründe. */
+export function TrihowMark({ size = 32, invert, className }: { size?: number; invert?: boolean; className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/trihow-mark.png" alt="Trihow" width={size} height={size} className={cn("shrink-0 select-none", invert && "invert", className)} draggable={false} />
   );
 }
 
@@ -40,14 +48,14 @@ export function CountUp({ value, className }: { value: number; className?: strin
 /** Gummistempel, der auf den Bildschirm knallt */
 export function Stamp({
   children,
-  tone = "alarm",
+  tone = "accent",
   className,
 }: {
   children: React.ReactNode;
-  tone?: "alarm" | "mint" | "ink";
+  tone?: "accent" | "approve" | "reject" | "ink";
   className?: string;
 }) {
-  const color = tone === "alarm" ? "var(--alarm)" : tone === "mint" ? "var(--mint)" : "var(--ink)";
+  const color = tone === "accent" ? "var(--alarm)" : tone === "approve" ? "var(--blue-2)" : tone === "reject" ? "var(--danger)" : "var(--ink)";
   return (
     <motion.div
       initial={{ scale: 3.2, opacity: 0, rotate: -24 }}
@@ -55,7 +63,7 @@ export function Stamp({
       exit={{ opacity: 0, scale: 1.15 }}
       transition={{ type: "spring", stiffness: 520, damping: 22, mass: 0.7 }}
       className={cn("display border-[6px] px-5 py-2 text-3xl sm:text-5xl", className)}
-      style={{ color, borderColor: color, boxShadow: `inset 0 0 0 3px var(--paper), 0 0 0 3px ${color}`, background: "rgba(242,232,211,.92)" }}
+      style={{ color, borderColor: color, boxShadow: `inset 0 0 0 3px var(--paper), 0 0 0 3px ${color}`, background: "rgba(255,255,255,.92)" }}
     >
       {children}
     </motion.div>

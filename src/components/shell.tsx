@@ -10,7 +10,7 @@ import { api } from "@/lib/api";
 import { cn, normalize } from "@/lib/format";
 import type { TickerResponse } from "@/lib/types";
 import { AppProvider, useApp } from "./providers";
-import { Avatar, nameOf } from "./ui";
+import { Avatar, nameOf, TrihowMark } from "./ui";
 
 const NAV = [
   { href: "/", label: "Rangliste", icon: "🏆" },
@@ -64,7 +64,7 @@ function Header() {
     <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-paper">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
         <Link href="/" className="group flex items-center gap-2" aria-label="Mobbing-Leaderboard – Startseite">
-          <span className="grid h-11 w-11 -rotate-6 place-items-center border-[3px] border-ink bg-alarm text-2xl shadow-[3px_3px_0_var(--ink)] transition-transform group-hover:rotate-6">👑</span>
+          <span className="grid h-11 w-11 -rotate-6 place-items-center border-[3px] border-ink bg-paper shadow-[3px_3px_0_var(--ink)] transition-transform group-hover:rotate-6"><TrihowMark size={30} /></span>
           <span className="display text-xl leading-none sm:text-2xl">
             Mobbing<span className="text-alarm">-</span>
             <br className="sm:hidden" />
@@ -79,7 +79,7 @@ function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/tv" className="chip hidden hover:bg-sun sm:inline-flex" title="Büro-Bildschirm-Modus">📺 TV</Link>
+          <Link href="/tv" className="chip hidden hover:bg-sun hover:text-paper sm:inline-flex" title="Büro-Bildschirm-Modus">📺 TV</Link>
           <button className="btn btn-ghost !min-h-10 !px-3 !py-1" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? "Ton einschalten" : "Ton ausschalten"} title={muted ? "Ton ist aus" : "Ton ist an"}>
             {muted ? "🔇" : "🔊"}
           </button>
@@ -106,7 +106,7 @@ function NavLink({ href, label, icon, active }: { href: string; label: string; i
       aria-current={active ? "page" : undefined}
       className={cn(
         "relative flex min-h-11 items-center gap-2 border-[3px] px-3 text-sm font-extrabold uppercase tracking-wide transition-colors",
-        active ? "border-ink bg-ink text-sun" : "border-transparent hover:border-ink hover:bg-sun",
+        active ? "border-ink bg-ink text-paper" : "border-transparent hover:border-ink hover:bg-sun hover:text-paper",
       )}
     >
       <span aria-hidden>{icon}</span>
@@ -136,7 +136,7 @@ function MobileLink({ href, label, icon, active }: { href: string; label: string
   const { data } = useTicker();
   const badge = href === "/tribunal" && me ? data?.openForMe ?? 0 : 0;
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={cn("relative flex min-h-16 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-extrabold uppercase", active ? "bg-ink text-sun" : "")}>
+    <Link href={href} aria-current={active ? "page" : undefined} className={cn("relative flex min-h-16 flex-col items-center justify-center gap-0.5 text-[0.7rem] font-extrabold uppercase", active ? "bg-ink text-paper" : "")}>
       <span className="text-xl" aria-hidden>{icon}</span>
       {label}
       {badge > 0 && <span className="absolute right-[22%] top-1.5 grid min-w-5 place-items-center rounded-full border-2 border-ink bg-alarm px-1 text-[0.65rem] text-paper">{badge}</span>}
@@ -153,13 +153,13 @@ function Marquee({ data }: { data?: TickerResponse }) {
     <>
       {text.map((t, idx) => (
         <span key={idx} className="px-6 text-xs font-extrabold uppercase tracking-wider">
-          {t} <span className="text-alarm">●</span>
+          {t} <span className="text-paper">●</span>
         </span>
       ))}
     </>
   );
   return (
-    <div className="marquee overflow-hidden border-t-[3px] border-ink bg-sun py-1.5" aria-label="Neueste Fälle">
+    <div className="marquee overflow-hidden border-t-[3px] border-ink bg-sun py-1.5 text-paper" aria-label="Neueste Fälle">
       <div className="marquee-track" aria-hidden>
         {row}
         {row}
@@ -208,7 +208,7 @@ function Toasts() {
             animate={{ x: 0, opacity: 1, rotate: -1 }}
             exit={{ x: 120, opacity: 0 }}
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
-            className="brut-sm flex max-w-sm items-center gap-3 bg-sun px-4 py-3"
+            className="brut-sm flex max-w-sm items-center gap-3 bg-sun px-4 py-3 text-paper"
           >
             <span className="text-3xl" aria-hidden>{t.emoji}</span>
             <span>
@@ -266,7 +266,7 @@ function IdentityGate() {
               whileHover={{ y: -4, rotate: idx % 2 ? 2 : -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => choose(c.id)}
-              className="brut-sm flex min-h-24 flex-col items-center justify-center gap-2 bg-paper p-2 hover:bg-sun"
+              className="brut-sm flex min-h-24 flex-col items-center justify-center gap-2 bg-paper p-2 hover:bg-sun hover:text-paper"
             >
               <Avatar id={c.id} size={56} />
               <span className="font-extrabold">{c.name}</span>

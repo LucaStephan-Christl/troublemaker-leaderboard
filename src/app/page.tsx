@@ -2,11 +2,12 @@
 
 import { motion } from "motion/react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import useSWR from "swr";
+import { useCallback, useEffect, useRef, useState } from "react";
+import useSWR, { useSWRConfig } from "swr";
 import { Podium, ProfileDialog, RecentFeed, Rows } from "@/components/leaderboard";
+import { RefreshBadge } from "@/components/refresh-badge";
 import { useApp } from "@/components/providers";
-import { nameOf, SectionTitle, Skeleton } from "@/components/ui";
+import { nameOf, SectionTitle, Skeleton, TrihowMark } from "@/components/ui";
 import { api } from "@/lib/api";
 import { confettiCannons } from "@/lib/fx";
 import { cn } from "@/lib/format";
@@ -18,17 +19,28 @@ const PERIODS: { id: Period; label: string }[] = [
   { id: "all", label: "Gesamt" },
 ];
 
+const REFRESH_MS = 10_000;
 const MONTH = new Date().toLocaleDateString("de-DE", { month: "long", year: "numeric", timeZone: "Europe/Berlin" });
 
 export default function LeaderboardPage() {
   const [period, setPeriod] = useState<Period>("month");
   const [profile, setProfile] = useState<string | null>(null);
   const { toast, sfx } = useApp();
-  const { data, isLoading } = useSWR<LeaderboardResponse>(
+  const { mutate: globalMutate } = useSWRConfig();
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const { data, isLoading, mutate } = useSWR<LeaderboardResponse>(
     ["/api/leaderboard", period],
     ([p, per]: [string, Period]) => api<LeaderboardResponse>(`${p}?period=${per}`, null),
-    { refreshInterval: 10_000, keepPreviousData: true },
+    { refreshInterval: REFRESH_MS, keepPreviousData: true, onSuccess: () => setUpdatedAt(Date.now()) },
   );
+
+  /** Sofort neu laden – mit Cache-Buster, damit auch das CDN-Caching umgangen wird */
+  const refresh = useCallback(async () => {
+    const fresh = await api<LeaderboardResponse>(`/api/leaderboard?period=${period}&fresh=${Date.now()}`, null);
+    await mutate(fresh, { revalidate: false });
+    setUpdatedAt(Date.now());
+    void globalMutate((k) => Array.isArray(k) && k[0] === "/api/ticker");
+  }, [period, mutate, globalMutate]);
 
   // Überholmanöver erkennen: gleiche Periode, Rang hat sich zugunsten eines anderen verschoben
   const prev = useRef<{ period: Period; order: string[] } | null>(null);
@@ -61,13 +73,19 @@ export default function LeaderboardPage() {
     <div className="space-y-10">
       <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-2 inline-block -rotate-2 border-[3px] border-ink bg-alarm px-3 py-1 text-xs font-extrabold uppercase tracking-[0.2em] text-paper shadow-[3px_3px_0_var(--ink)]">
-            Saison {MONTH}
-          </p>
+          <div className="mb-3 flex items-center gap-3">
+            <span className="wiggle grid h-14 w-14 place-items-center border-[3px] border-ink bg-paper shadow-[3px_3px_0_var(--ink)]">
+              <TrihowMark size={40} />
+            </span>
+            <p className="inline-block -rotate-2 border-[3px] border-ink bg-gradient-to-r from-alarm to-sun px-3 py-1 text-xs font-extrabold uppercase tracking-[0.2em] text-paper shadow-[3px_3px_0_var(--ink)]">
+              Saison {MONTH}
+            </p>
+          </div>
           <h1 className="display text-5xl sm:text-7xl">
-            Wer mobbt<br />am <span className="text-alarm">meisten?</span>
+            Wer mobbt<br />am meisten<br />bei <span className="bg-gradient-to-r from-sun to-alarm bg-clip-text text-transparent">Trihow?</span>
           </h1>
         </div>
+        <div className="flex flex-col gap-3 sm:items-end">
         <div role="tablist" aria-label="Zeitraum" className="flex border-[3px] border-ink bg-paper shadow-[4px_4px_0_var(--ink)]">
           {PERIODS.map((p) => (
             <button
@@ -75,11 +93,13 @@ export default function LeaderboardPage() {
               role="tab"
               aria-selected={period === p.id}
               onClick={() => setPeriod(p.id)}
-              className={cn("min-h-11 flex-1 px-3 text-xs font-extrabold uppercase tracking-wide transition-colors sm:px-4 sm:text-sm", period === p.id ? "bg-ink text-sun" : "hover:bg-sun")}
+              className={cn("min-h-11 flex-1 px-3 text-xs font-extrabold uppercase tracking-wide transition-colors sm:px-4 sm:text-sm", period === p.id ? "bg-ink text-paper" : "hover:bg-sun hover:text-paper")}
             >
               {p.label}
             </button>
           ))}
+        </div>
+        <RefreshBadge updatedAt={updatedAt} intervalMs={REFRESH_MS} onRefresh={refresh} className="w-full sm:w-72" />
         </div>
       </section>
 

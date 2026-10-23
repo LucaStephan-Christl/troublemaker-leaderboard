@@ -29,7 +29,7 @@ export function getMe(req: Request): string | null {
 /** Kategorien gibt es nur, wenn Kolleg:innen sie in der App angelegt haben. */
 export async function getCategories(db: Db): Promise<Category[]> {
   const rows = await db.select().from(customCategories).orderBy(asc(customCategories.createdAt));
-  return rows.map((c) => ({ id: c.id, label: c.label, emoji: c.emoji, points: c.points }));
+  return rows.map((c) => ({ id: c.id, label: c.label, emoji: c.emoji, points: c.points, description: c.description }));
 }
 
 export function toDTO(row: typeof incidents.$inferSelect, cats: Map<string, Category>): IncidentDTO {
@@ -40,6 +40,7 @@ export function toDTO(row: typeof incidents.$inferSelect, cats: Map<string, Cate
     victimId: row.victimId,
     categoryId: row.categoryId,
     categoryLabel: cat?.label ?? row.categoryId,
+    categoryDescription: cat?.description ?? null,
     emoji: cat?.emoji ?? "❓",
     points: effectivePoints(row.points, row.confessed),
     note: row.note,

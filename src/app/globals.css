@@ -1,13 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f2e8d3;
-  --paper-2: #e6d9bb;
-  --ink: #16110d;
-  --alarm: #e5391c;
-  --sun: #ffcf33;
-  --mint: #2fb883;
-  --sky: #78c0ff;
+  /* Trihow-Farben (trihow-core theme.tsx + trihow.com) */
+  --page: #f6f6f6;
+  --paper: #ffffff;
+  --paper-2: #f2f0f0;
+  --ink: #1b1a1f;
+  --alarm: #e91e8c; /* Magenta (trihow.com) */
+  --sun: #239ae7; /* Trihow-Blau */
+  --mint: #c4fbd1; /* Trihow-Grün */
+  --sky: #f1f9ff; /* Trihow blue-light */
+  --blue-2: #158ad6;
+  --danger: #f74857;
+  --gold: #ffc48e;
+  --gold-2: #ffa653;
   color-scheme: light;
 }
 
@@ -19,17 +25,19 @@
   --color-sun: var(--sun);
   --color-mint: var(--mint);
   --color-sky: var(--sky);
+  --color-blue-2: var(--blue-2);
+  --color-danger: var(--danger);
   --font-display: var(--f-display), "Impact", sans-serif;
   --font-sans: var(--f-body), ui-sans-serif, sans-serif;
 }
 
 html {
-  background: var(--paper);
+  background: var(--page);
 }
 
 body {
-  background-color: var(--paper);
-  background-image: radial-gradient(rgba(22, 17, 13, 0.1) 1px, transparent 1px);
+  background-color: var(--page);
+  background-image: radial-gradient(rgba(27, 26, 31, 0.1) 1px, transparent 1px);
   background-size: 14px 14px;
   color: var(--ink);
   font-family: var(--f-body), ui-sans-serif, sans-serif;
@@ -50,10 +58,12 @@ body::after {
 
 ::selection {
   background: var(--sun);
-  color: var(--ink);
+  color: var(--paper);
 }
 
 /* ---------- Bausteine ---------- */
+/* In @layer components, damit Tailwind-Utilities (bg-sun, text-paper …) sie überschreiben dürfen */
+@layer components {
 .brut {
   border: 3px solid var(--ink);
   box-shadow: 6px 6px 0 var(--ink);
@@ -73,8 +83,9 @@ body::after {
   font-family: var(--f-display), Impact, sans-serif;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  background: var(--sun);
-  color: var(--ink);
+  background-color: var(--sun);
+  background-image: linear-gradient(135deg, var(--sun), var(--blue-2));
+  color: var(--paper);
   border: 3px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
   cursor: pointer;
@@ -93,15 +104,29 @@ body::after {
   cursor: not-allowed;
 }
 .btn-alarm {
-  background: var(--alarm);
+  background-color: var(--alarm);
+  background-image: linear-gradient(135deg, var(--alarm), var(--danger));
   color: var(--paper);
 }
+.btn-danger {
+  background-color: var(--danger);
+  background-image: linear-gradient(135deg, var(--danger), var(--alarm));
+  color: var(--paper);
+}
+.btn-ok {
+  background-color: var(--mint);
+  background-image: linear-gradient(135deg, var(--mint), var(--sun));
+  color: var(--ink);
+}
 .btn-ink {
-  background: var(--ink);
-  color: var(--sun);
+  background-color: var(--ink);
+  background-image: none;
+  color: var(--paper);
 }
 .btn-ghost {
-  background: var(--paper);
+  background-color: var(--paper);
+  background-image: none;
+  color: var(--ink);
 }
 :focus-visible {
   outline: 3px solid var(--alarm);
@@ -131,7 +156,8 @@ body::after {
 
 /* Warnstreifen */
 .hazard {
-  background: repeating-linear-gradient(-45deg, var(--ink) 0 14px, var(--sun) 14px 28px);
+  background: repeating-linear-gradient(-45deg, var(--ink) 0 14px, var(--gold-2) 14px 28px);
+}
 }
 
 /* Lauftext */
@@ -177,8 +203,8 @@ body::after {
 }
 
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(229, 57, 28, 0.55); }
-  100% { box-shadow: 0 0 0 14px rgba(229, 57, 28, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(233, 30, 140, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(233, 30, 140, 0); }
 }
 .pulse-ring {
   animation: pulse-ring 1.6s ease-out infinite;
@@ -189,7 +215,7 @@ body::after {
   to { background-position: 200% 0; }
 }
 .gold-sheen {
-  background: linear-gradient(110deg, var(--sun) 35%, #fff3b0 50%, var(--sun) 65%);
+  background: linear-gradient(110deg, var(--gold) 35%, var(--paper) 50%, var(--gold-2) 65%);
   background-size: 200% 100%;
   animation: sheen 3.5s linear infinite;
 }
@@ -203,3 +229,11 @@ body::after {
   }
   .marquee-track { animation: none; }
 }
+
+
+
+
+
+
+
+

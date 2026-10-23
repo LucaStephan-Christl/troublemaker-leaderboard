@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_CATEGORY_POINTS, MIN_CATEGORY_POINTS } from "@/config/categories";
+import { MAX_CATEGORY_DESCRIPTION, MAX_CATEGORY_LABEL, MAX_CATEGORY_POINTS, MIN_CATEGORY_POINTS } from "@/config/categories";
 import { fail, getCategories, getDb, getMe, json } from "@/lib/server";
 import { schema } from "@/db";
 
@@ -9,7 +9,8 @@ export async function GET() {
 }
 
 const NewCategory = z.object({
-  label: z.string().trim().min(2).max(40),
+  label: z.string().trim().min(2).max(MAX_CATEGORY_LABEL),
+  description: z.string().trim().max(MAX_CATEGORY_DESCRIPTION).optional(),
   emoji: z.string().trim().min(1).max(8),
   points: z.number().int().min(MIN_CATEGORY_POINTS).max(MAX_CATEGORY_POINTS),
 });
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
     return fail("Diese Kategorie gibt es schon.", 409);
   }
   const id = `c-${crypto.randomUUID().slice(0, 8)}`;
-  await db.insert(schema.customCategories).values({ id, ...parsed.data });
-  return json({ id, ...parsed.data }, 201);
+  const description = parsed.data.description || null;
+  await db.insert(schema.customCategories).values({ id, ...parsed.data, description });
+  return json({ id, ...parsed.data, description }, 201);
 }

@@ -4,8 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { CountUp, Avatar, nameOf } from "@/components/ui";
-import { COWORKER_BY_ID } from "@/config/coworkers";
+import { RefreshBadge } from "@/components/refresh-badge";
+import { CountUp, Avatar, nameOf, TrihowMark } from "@/components/ui";
 import { api } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
 import { isOfficeHours } from "@/lib/time";
@@ -25,14 +25,26 @@ export default function TvPage() {
     const t = setInterval(() => setOffice(isOfficeHours(new Date())), 60_000);
     return () => clearInterval(t);
   }, []);
-  const { data: lb } = useSWR<LeaderboardResponse>("/api/leaderboard?period=month", (p: string) => api<LeaderboardResponse>(p, null), {
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const { data: lb, mutate: mutateLb } = useSWR<LeaderboardResponse>("/api/leaderboard?period=month", (p: string) => api<LeaderboardResponse>(p, null), {
     refreshInterval: office ? POLL_MS : 0,
     revalidateOnFocus: false,
+    onSuccess: () => setUpdatedAt(Date.now()),
   });
-  const { data: ins } = useSWR<Insights>("/api/insights", (p: string) => api<Insights>(p, null), {
+  const { data: ins, mutate: mutateIns } = useSWR<Insights>("/api/insights", (p: string) => api<Insights>(p, null), {
     refreshInterval: office ? POLL_INSIGHTS_MS : 0,
     revalidateOnFocus: false,
   });
+  /** Sofort neu laden – mit Cache-Buster, damit auch das CDN-Caching umgangen wird */
+  const refresh = async () => {
+    const stamp = Date.now();
+    const [freshLb, freshIns] = await Promise.all([
+      api<LeaderboardResponse>(`/api/leaderboard?period=month&fresh=${stamp}`, null),
+      api<Insights>(`/api/insights?fresh=${stamp}`, null),
+    ]);
+    await Promise.all([mutateLb(freshLb, { revalidate: false }), mutateIns(freshIns, { revalidate: false })]);
+    setUpdatedAt(Date.now());
+  };
 
   useEffect(() => {
     const t = setInterval(() => { setSlide((s) => (s + 1) % SLIDES.length); setTick((k) => k + 1); }, SLIDE_MS);
@@ -44,11 +56,12 @@ export default function TvPage() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-ink text-paper">
       <div className="hazard h-4 shrink-0" />
-      <header className="flex items-center justify-between px-8 py-4">
-        <h1 className="display text-3xl sm:text-5xl">👑 Mobbing<span className="text-sun">-</span>Board <span className="text-alarm">live</span></h1>
-        <div className="flex items-center gap-4 text-right">
-          <span className="hidden text-sm font-extrabold uppercase tracking-widest text-sun sm:block">Saison {month}</span>
-          <span className="flex items-center gap-2 text-sm font-bold uppercase">
+      <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-8 py-4">
+        <h1 className="display flex items-center gap-4 text-3xl sm:text-5xl"><TrihowMark size={56} invert className="wiggle" /> Mobbing<span className="text-paper">-</span>Board <span className="text-alarm">live</span></h1>
+        <div className="flex flex-wrap items-center justify-end gap-4 text-right">
+          <span className="hidden text-sm font-extrabold uppercase tracking-widest text-paper xl:block">Saison {month}</span>
+          <RefreshBadge dark updatedAt={updatedAt} intervalMs={POLL_MS} paused={!office} pausedLabel="Feierabend" onRefresh={refresh} className="w-60 shrink-0 text-left" />
+          <span className="hidden items-center gap-2 text-sm font-bold uppercase lg:flex">
             {office ? <><span className="pulse-ring inline-block h-3 w-3 rounded-full bg-alarm" /> Live</> : <>🌙 Feierabend</>}
           </span>
           <Link href="/" className="text-xs underline opacity-50 hover:opacity-100">zurück</Link>
@@ -68,9 +81,9 @@ export default function TvPage() {
       <footer className="flex items-center gap-3 px-8 pb-4">
         {SLIDES.map((s, i) => (
           <div key={s} className="flex-1">
-            <p className={`mb-1 text-xs font-extrabold uppercase tracking-widest ${i === slide ? "text-sun" : "opacity-40"}`}>{s}</p>
+            <p className={`mb-1 text-xs font-extrabold uppercase tracking-widest ${i === slide ? "text-paper" : "opacity-40"}`}>{s}</p>
             <div className="h-2 bg-paper/20">
-              {i === slide && <motion.div key={tick} className="h-full bg-sun" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: SLIDE_MS / 1000, ease: "linear" }} />}
+              {i === slide && <motion.div key={tick} className="h-full bg-paper" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: SLIDE_MS / 1000, ease: "linear" }} />}
             </div>
           </div>
         ))}
@@ -86,13 +99,13 @@ function BoardSlide({ lb }: { lb?: LeaderboardResponse }) {
     <ol className="flex h-full flex-col justify-center gap-3">
       {top.map((e, i) => (
         <motion.li key={e.id} layout initial={{ opacity: 0, x: -60 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08, type: "spring", stiffness: 300, damping: 28 }} className="flex items-center gap-5">
-          <span className="display w-14 text-center text-5xl text-sun">{i === 0 ? "👑" : e.rank}</span>
+          <span className="display w-14 text-center text-5xl text-paper">{i === 0 ? "👑" : e.rank}</span>
           <span className="grid w-[84px] shrink-0 place-items-center"><Avatar id={e.id} size={i === 0 ? 84 : 64} /></span>
           <span className="display w-56 shrink-0 text-3xl sm:w-72 sm:text-4xl">{nameOf(e.id)}</span>
           <span className="relative h-9 flex-1 border-[3px] border-paper/60">
-            <motion.span className="absolute inset-y-0 left-0" style={{ background: i === 0 ? "var(--sun)" : COWORKER_BY_ID[e.id]?.color }} initial={{ width: 0 }} animate={{ width: `${(e.points / max) * 100}%` }} transition={{ duration: 1.1, delay: 0.2 + i * 0.08, ease: [0.16, 1, 0.3, 1] }} />
+            <motion.span className="absolute inset-y-0 left-0" style={{ background: i === 0 ? "linear-gradient(90deg, var(--alarm), var(--gold-2))" : "linear-gradient(90deg, var(--paper-2), var(--gold))" }} initial={{ width: 0 }} animate={{ width: `${(e.points / max) * 100}%` }} transition={{ duration: 1.1, delay: 0.2 + i * 0.08, ease: [0.16, 1, 0.3, 1] }} />
           </span>
-          <span className="display w-24 text-right text-5xl text-sun"><CountUp value={e.points} /></span>
+          <span className="display w-24 text-right text-5xl text-paper"><CountUp value={e.points} /></span>
         </motion.li>
       ))}
     </ol>
@@ -103,7 +116,7 @@ function RecentSlide({ lb }: { lb?: LeaderboardResponse }) {
   const items = (lb?.recent ?? []).slice(0, 6);
   return (
     <div className="flex h-full flex-col justify-center gap-3">
-      <h2 className="display mb-2 text-4xl text-sun">Frisch bestätigt</h2>
+      <h2 className="display mb-2 text-4xl text-paper">Frisch bestätigt</h2>
       {items.length === 0 && <p className="text-3xl opacity-60">Noch nichts passiert. Verdächtig.</p>}
       {items.map((i, idx) => (
         <motion.div key={i.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-center gap-5 border-[3px] border-paper/30 p-3">
@@ -113,7 +126,7 @@ function RecentSlide({ lb }: { lb?: LeaderboardResponse }) {
             <span className="display block truncate text-2xl sm:text-3xl">{nameOf(i.accusedId)} <span className="text-alarm">➜</span> {nameOf(i.victimId)}</span>
             <span className="block truncate text-lg opacity-70">{i.categoryLabel}{i.note ? ` · „${i.note}“` : ""} · {timeAgo(i.createdAt)}</span>
           </span>
-          <span className="display text-5xl text-sun">+{i.points}</span>
+          <span className="display text-5xl text-paper">+{i.points}</span>
         </motion.div>
       ))}
     </div>
@@ -131,8 +144,8 @@ function ShameSlide({ ins }: { ins?: Insights }) {
   return (
     <div className="grid h-full grid-cols-1 content-center gap-5 sm:grid-cols-2">
       {cards.slice(0, 4).map((c, i) => (
-        <motion.div key={c.title} initial={{ opacity: 0, scale: 0.85, rotate: i % 2 ? 2 : -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ delay: i * 0.12, type: "spring", stiffness: 300, damping: 22 }} className="border-[4px] border-sun p-6">
-          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.25em] text-sun">{c.title}</p>
+        <motion.div key={c.title} initial={{ opacity: 0, scale: 0.85, rotate: i % 2 ? 2 : -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ delay: i * 0.12, type: "spring", stiffness: 300, damping: 22 }} className="border-[4px] border-paper p-6">
+          <p className="mb-3 text-sm font-extrabold uppercase tracking-[0.25em] text-paper">{c.title}</p>
           <div className="flex items-center gap-5">
             {c.id && <Avatar id={c.id} size={88} />}
             <div>

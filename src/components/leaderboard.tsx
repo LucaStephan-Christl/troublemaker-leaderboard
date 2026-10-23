@@ -13,8 +13,8 @@ const spring = { type: "spring", stiffness: 380, damping: 32 } as const;
 /* ---------- Podium ---------- */
 const PODIUM = [
   { place: 1, h: 190, avatar: 104, label: "🥇", block: "gold-sheen" },
-  { place: 2, h: 135, avatar: 80, label: "🥈", block: "bg-[#d6d2c8]" },
-  { place: 3, h: 100, avatar: 80, label: "🥉", block: "bg-[#d9925a]" },
+  { place: 2, h: 135, avatar: 80, label: "🥈", block: "bg-gradient-to-b from-paper to-[#E5E5E5]" },
+  { place: 3, h: 100, avatar: 80, label: "🥉", block: "bg-gradient-to-b from-[#FFC48E] to-[#DD6C6C]" },
 ] as const;
 
 export function Podium({ entries, onOpen }: { entries: LeaderboardEntry[]; onOpen: (id: string) => void }) {
@@ -102,7 +102,7 @@ export function Rows({ entries, onOpen }: { entries: LeaderboardEntry[]; onOpen:
                 <span className="block truncate text-lg font-extrabold">{nameOf(e.id)}</span>
                 <span className="relative block h-2.5 w-full border-2 border-ink bg-paper-2">
                   <motion.span
-                    className="absolute inset-y-0 left-0 bg-alarm"
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-sun to-alarm"
                     initial={false}
                     animate={{ width: `${(e.points / max) * 100}%` }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -202,7 +202,7 @@ export function ProfileDialog({ id, onClose }: { id: string | null; onClose: () 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {p.badges.length === 0 && <span className="text-sm opacity-60">Noch keine Abzeichen – langweilig.</span>}
                   {p.badges.map((b) => (
-                    <span key={b} className="chip bg-sun" title={BADGES[b]?.description}>
+                    <span key={b} className="chip bg-sun text-paper" title={BADGES[b]?.description}>
                       {BADGES[b]?.emoji} {BADGES[b]?.label}
                     </span>
                   ))}

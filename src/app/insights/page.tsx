@@ -91,7 +91,7 @@ function Content({ data }: { data: Insights }) {
                     <span className="tabnum shrink-0">{c.count}× · {c.points} Pkt</span>
                   </div>
                   <div className="mt-1 h-4 border-2 border-ink bg-paper-2">
-                    <motion.div className="h-full bg-alarm" initial={{ width: 0 }} whileInView={{ width: `${(c.count / max) * 100}%` }} viewport={{ once: true }} transition={{ delay: idx * 0.05, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
+                    <motion.div className="h-full bg-gradient-to-r from-sun to-alarm" initial={{ width: 0 }} whileInView={{ width: `${(c.count / max) * 100}%` }} viewport={{ once: true }} transition={{ delay: idx * 0.05, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
                   </div>
                 </div>
               </div>
@@ -149,7 +149,7 @@ function Content({ data }: { data: Insights }) {
                 <div className="mt-3 flex min-h-8 flex-wrap gap-2">
                   {p.badges.length === 0 && <span className="text-sm opacity-50">Keine Abzeichen. Noch.</span>}
                   {p.badges.map((b) => (
-                    <span key={b} className="chip bg-sun" title={BADGES[b]?.description}>{BADGES[b]?.emoji} {BADGES[b]?.label}</span>
+                    <span key={b} className="chip bg-sun text-paper" title={BADGES[b]?.description}>{BADGES[b]?.emoji} {BADGES[b]?.label}</span>
                   ))}
                 </div>
               </li>
@@ -171,7 +171,7 @@ function Content({ data }: { data: Insights }) {
 
 function Big({ label, value }: { label: string; value: number }) {
   return (
-    <div className="brut-sm bg-sun p-3 text-center">
+    <div className="brut-sm bg-sun p-3 text-center text-paper">
       <p className="display text-4xl sm:text-6xl"><CountUp value={value} /></p>
       <p className="text-[0.65rem] font-extrabold uppercase tracking-wider sm:text-xs">{label}</p>
     </div>
@@ -191,7 +191,7 @@ function TopIncident({ title, incident, className, big }: { title: string; incid
   return (
     <Card title={title} className={className}>
       <div className="flex flex-wrap items-center gap-4">
-        <span className={`display border-[3px] border-ink bg-alarm px-3 py-1 text-paper ${big ? "text-6xl" : "text-4xl"}`}>+{incident.points}</span>
+        <span className={`display border-[3px] border-ink bg-gradient-to-r from-alarm to-danger px-3 py-1 text-paper ${big ? "text-6xl" : "text-4xl"}`}>+{incident.points}</span>
         <div className="min-w-0 flex-1">
           <p className="display text-2xl sm:text-3xl">{incident.emoji} {incident.categoryLabel}</p>
           <p className="mt-1 flex flex-wrap items-center gap-2 font-bold">
@@ -214,8 +214,8 @@ function Rivalry({ r }: { r: NonNullable<Insights["rivalry"]> }) {
         <div className="text-center"><Avatar id={r.b} size={64} className="mx-auto" /><p className="display mt-1 text-xl">{nameOf(r.b)}</p></div>
       </div>
       <div className="mt-4 flex h-5 border-[3px] border-ink">
-        <motion.div className="h-full" style={{ background: COWORKER_BY_ID[r.a]?.color }} initial={{ width: "50%" }} whileInView={{ width: `${aPct}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }} />
-        <div className="h-full flex-1" style={{ background: COWORKER_BY_ID[r.b]?.color }} />
+        <motion.div className="h-full bg-gradient-to-r from-sun to-blue-2" initial={{ width: "50%" }} whileInView={{ width: `${aPct}%` }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }} />
+        <div className="h-full flex-1 bg-gradient-to-r from-alarm to-danger" />
       </div>
       <p className="mt-2 text-center text-sm">{r.total} Fälle untereinander – die Küche bebt.</p>
     </Card>
@@ -256,6 +256,9 @@ function Heatmap({ h }: { h: Insights["heatmap"] }) {
   );
 }
 
+/** Linienfarben im Punkte-Rennen (nur Trihow-Farben, nach Platz vergeben) */
+const RACE_COLORS = ["#239AE7", "#E91E8C", "#FFA653", "#1B1A1F", "#F74857"];
+
 function Race({ race }: { race: Insights["race"] }) {
   const W = 640, H = 280, PAD = { l: 36, r: 56, t: 16, b: 28 };
   const n = race.days.length;
@@ -277,7 +280,7 @@ function Race({ race }: { race: Insights["race"] }) {
         <text x={W - PAD.r} y={H - 8} fontSize="11" textAnchor="end" fill="var(--ink)">heute</text>
         {top.map((s, idx) => {
           const d = s.values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-          const color = COWORKER_BY_ID[s.id]?.color ?? "#999";
+          const color = RACE_COLORS[idx % RACE_COLORS.length];
           const last = s.values.at(-1) ?? 0;
           return (
             <g key={s.id}>
@@ -292,9 +295,9 @@ function Race({ race }: { race: Insights["race"] }) {
         })}
       </svg>
       <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm font-bold">
-        {top.map((s) => (
+        {top.map((s, ti) => (
           <li key={s.id} className="flex items-center gap-1.5">
-            <span className="inline-block h-3 w-5 border-2 border-ink" style={{ background: COWORKER_BY_ID[s.id]?.color }} /> {nameOf(s.id)} ({s.values.at(-1)})
+            <span className="inline-block h-3 w-5 border-2 border-ink" style={{ background: RACE_COLORS[ti % RACE_COLORS.length] }} /> {nameOf(s.id)} ({s.values.at(-1)})
           </li>
         ))}
       </ul>

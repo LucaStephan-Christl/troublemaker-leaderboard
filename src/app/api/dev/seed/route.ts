@@ -4,20 +4,20 @@ import { schema } from "@/db";
 import { fail, getDb, json } from "@/lib/server";
 
 const DEMO_CATEGORIES: Category[] = [
-  { id: "stuhl-versteckt", label: "Stuhl versteckt", emoji: "🪑", points: 3 },
-  { id: "kaffee-leer", label: "Kaffeemaschine leer gelassen", emoji: "☕", points: 2 },
-  { id: "mittagessen-geklaut", label: "Mittagessen „geliehen“", emoji: "🥪", points: 5 },
-  { id: "meeting-gesprengt", label: "Meeting gesprengt", emoji: "🙄", points: 4 },
-  { id: "peinliches-foto", label: "Peinliches Foto im Teamchat", emoji: "📸", points: 6 },
-  { id: "hintergrundbild", label: "Hintergrundbild umgestellt", emoji: "🖼️", points: 4 },
-  { id: "laut-telefoniert", label: "Laut telefoniert im Großraum", emoji: "📢", points: 3 },
-  { id: "tastatur-layout", label: "Tastatur-Layout verstellt", emoji: "⌨️", points: 5 },
-  { id: "frischhaltefolie", label: "Schreibtisch in Folie gewickelt", emoji: "🎁", points: 8 },
-  { id: "airhorn", label: "Airhorn im Büro", emoji: "🎺", points: 7 },
-  { id: "antwort-an-alle", label: "„Antwort an alle“-Desaster", emoji: "📧", points: 5 },
-  { id: "kuchen-allein", label: "Geburtstagskuchen allein gegessen", emoji: "🍰", points: 9 },
-  { id: "ticket-zugeschoben", label: "Ticket heimlich zugeschoben", emoji: "🎫", points: 6 },
-  { id: "ladekabel", label: "Ladekabel entführt", emoji: "🔌", points: 4 },
+  { id: "stuhl-versteckt", label: "Stuhl versteckt", emoji: "🪑", points: 3, description: "Der Bürostuhl ist weg – und zwar nicht im Meetingraum." },
+  { id: "kaffee-leer", label: "Kaffeemaschine leer gelassen", emoji: "☕", points: 2, description: "Letzte Tasse genommen, nichts nachgefüllt." },
+  { id: "mittagessen-geklaut", label: "Mittagessen „geliehen“", emoji: "🥪", points: 5, description: "Fremdes Essen aus dem Kühlschrank „geliehen“." },
+  { id: "meeting-gesprengt", label: "Meeting gesprengt", emoji: "🙄", points: 4, description: "Mit Ansage oder ganz ohne Grund reingeplatzt." },
+  { id: "peinliches-foto", label: "Peinliches Foto im Teamchat", emoji: "📸", points: 6, description: "Ein Foto, das niemand sehen wollte, im Teamchat." },
+  { id: "hintergrundbild", label: "Hintergrundbild umgestellt", emoji: "🖼️", points: 4, description: "Desktop-Hintergrund heimlich gegen etwas Peinliches getauscht." },
+  { id: "laut-telefoniert", label: "Laut telefoniert im Großraum", emoji: "📢", points: 3, description: "Großraumbüro, Freisprechen, Lautstärke 11." },
+  { id: "tastatur-layout", label: "Tastatur-Layout verstellt", emoji: "⌨️", points: 5, description: "Tastaturbelegung verstellt, jetzt tippt alles falsch." },
+  { id: "frischhaltefolie", label: "Schreibtisch eingewickelt", emoji: "🎁", points: 8, description: "Schreibtisch samt Inhalt komplett eingepackt." },
+  { id: "airhorn", label: "Airhorn im Büro", emoji: "🎺", points: 7, description: "Plötzliches Hupen in der Stille." },
+  { id: "antwort-an-alle", label: "„Antwort an alle“-Desaster", emoji: "📧", points: 5, description: "Eine Mail an alle, die nur eine Person lesen sollte." },
+  { id: "kuchen-allein", label: "Kuchen allein gegessen", emoji: "🍰", points: 9, description: "Der ganze Geburtstagskuchen, keine Gäste, kein Stück übrig." },
+  { id: "ticket-zugeschoben", label: "Ticket heimlich zugeschoben", emoji: "🎫", points: 6, description: "Ticket heimlich jemand anderem zugewiesen." },
+  { id: "ladekabel", label: "Ladekabel entführt", emoji: "🔌", points: 4, description: "Ladekabel von einem fremden Schreibtisch entführt." },
 ];
 
 /** Nur für die lokale Entwicklung: füllt die DB mit Fake-Fällen für Screenshots & Tests. */

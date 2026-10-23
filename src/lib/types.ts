@@ -8,6 +8,7 @@ export type IncidentDTO = {
   victimId: string;
   categoryId: string;
   categoryLabel: string;
+  categoryDescription: string | null;
   emoji: string;
   /** Effektive Punkte (inkl. Geständnis-Bonus) */
   points: number;

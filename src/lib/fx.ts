@@ -1,6 +1,6 @@
 import confetti from "canvas-confetti";
 
-const COLORS = ["#ffcf33", "#e5391c", "#16110d", "#2fb883", "#78c0ff", "#f2e8d3"];
+const COLORS = ["#239ae7", "#e91e8c", "#1b1a1f", "#c4fbd1", "#ffa653", "#ffffff"];
 
 function reduced() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;

@@ -5,7 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useApp } from "@/components/providers";
 import { Avatar, nameOf, SectionTitle, Stamp } from "@/components/ui";
-import { MAX_CATEGORY_POINTS, MIN_CATEGORY_POINTS, type Category } from "@/config/categories";
+import { MAX_CATEGORY_DESCRIPTION, MAX_CATEGORY_LABEL, MAX_CATEGORY_POINTS, MIN_CATEGORY_POINTS, type Category } from "@/config/categories";
 import { COWORKERS } from "@/config/coworkers";
 import { api } from "@/lib/api";
 import { cn, normalize } from "@/lib/format";
@@ -35,7 +35,7 @@ export default function MeldenPage() {
   const q = normalize(query);
   const visible = useMemo(() => {
     const list = [...(categories ?? [])].reverse(); // neueste zuerst
-    return q ? list.filter((c) => normalize(c.label).includes(q)) : list;
+    return q ? list.filter((c) => normalize(`${c.label} ${c.description ?? ""}`).includes(q)) : list;
   }, [categories, q]);
   const exactMatch = !!categories?.some((c) => normalize(c.label) === q);
 
@@ -133,7 +133,7 @@ export default function MeldenPage() {
             <motion.button
               whileHover={{ y: -3 }}
               onClick={() => setDraft({ label: capitalize(query.trim()), nonce: Date.now() })}
-              className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-sun/60 p-3 text-center font-extrabold hover:bg-sun"
+              className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-sky p-3 text-center font-extrabold hover:bg-sun hover:text-paper"
             >
               <span className="text-3xl" aria-hidden>＋</span>
               <span className="leading-tight">„{query.trim()}“ neu anlegen</span>
@@ -161,10 +161,11 @@ export default function MeldenPage() {
               whileTap={{ scale: 0.96 }}
               onClick={() => { sfx("pop"); setCategoryId(c.id); }}
               aria-pressed={categoryId === c.id}
-              className={cn("brut-sm relative flex min-h-28 flex-col items-start gap-1 p-3 text-left transition-colors", categoryId === c.id ? "bg-sun" : "bg-paper hover:bg-white/50")}
+              className={cn("brut-sm relative flex min-h-28 flex-col items-start gap-1 p-3 text-left transition-colors", categoryId === c.id ? "bg-sun text-paper" : "bg-paper hover:bg-white/50")}
             >
               <span className="text-3xl" aria-hidden>{c.emoji}</span>
               <span className="pr-8 text-sm font-extrabold leading-tight">{c.label}</span>
+              {c.description && <span className="line-clamp-2 text-xs leading-snug opacity-70">{c.description}</span>}
               <span className="display absolute right-2 top-2 border-2 border-ink bg-alarm px-1.5 py-0.5 text-sm text-paper">+{c.points}</span>
               {categoryId === c.id && <span className="absolute bottom-2 right-3 text-xl" aria-hidden>✔️</span>}
             </motion.button>
@@ -173,7 +174,7 @@ export default function MeldenPage() {
             <motion.button
               whileHover={{ y: -3 }}
               onClick={() => setDraft({ label: "", nonce: Date.now() })}
-              className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-transparent p-3 font-extrabold hover:bg-sun/50"
+              className="flex min-h-28 flex-col items-center justify-center gap-1 border-[3px] border-dashed border-ink bg-transparent p-3 font-extrabold hover:bg-sun hover:text-paper"
             >
               <span className="text-3xl" aria-hidden>＋</span>
               Eigene Kategorie
@@ -286,7 +287,7 @@ function PersonGrid({
               onClick={() => onPick(c.id)}
               className={cn(
                 "flex min-h-24 flex-col items-center justify-center gap-1.5 border-[3px] border-ink p-2 transition-colors",
-                selected || lit ? (tone === "alarm" ? "bg-alarm text-paper" : "bg-sky") : "bg-paper hover:bg-sun",
+                selected || lit ? (tone === "alarm" ? "bg-alarm text-paper" : "bg-sky") : "bg-paper hover:bg-sun hover:text-paper",
                 (selected || lit) && "shadow-[4px_4px_0_var(--ink)]",
               )}
             >
@@ -313,13 +314,14 @@ function NewCategory({
   const { me, toast, sfx } = useApp();
   const [emoji, setEmoji] = useState("🤡");
   const [label, setLabel] = useState(initialLabel);
+  const [description, setDescription] = useState("");
   const [points, setPoints] = useState(4);
   const [busy, setBusy] = useState(false);
 
   async function create() {
     setBusy(true);
     try {
-      const c = await api<Category>("/api/categories", me, { method: "POST", body: JSON.stringify({ label, emoji, points }) });
+      const c = await api<Category>("/api/categories", me, { method: "POST", body: JSON.stringify({ label, emoji, points, description: description.trim() || undefined }) });
       sfx("fanfare");
       await onCreated(c);
     } catch (e) {
@@ -330,12 +332,24 @@ function NewCategory({
   }
 
   return (
-    <div className="brut-sm col-span-2 flex flex-col gap-3 bg-sun/60 p-3 md:col-span-3">
+    <div className="brut-sm col-span-2 flex flex-col gap-3 bg-sky p-3 md:col-span-3">
       <p className="font-extrabold uppercase">Neue Kategorie</p>
       <div className="flex gap-2">
         <input aria-label="Emoji" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={8} className="w-16 border-[3px] border-ink bg-paper p-2 text-center text-2xl" />
-        <input aria-label="Name" autoFocus={!initialLabel} value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} placeholder="z. B. Kekse im Meeting aufgegessen" className="min-w-0 flex-1 border-[3px] border-ink bg-paper p-2 text-base" />
+        <input aria-label="Name" autoFocus={!initialLabel} value={label} onChange={(e) => setLabel(e.target.value.slice(0, MAX_CATEGORY_LABEL))} maxLength={MAX_CATEGORY_LABEL} placeholder="z. B. Kekse aufgegessen" className="min-w-0 flex-1 border-[3px] border-ink bg-paper p-2 text-base" />
       </div>
+      <p className="-mt-2 text-right text-xs opacity-60">{label.length}/{MAX_CATEGORY_LABEL}</p>
+      <label className="block">
+        <span className="text-sm font-bold">Beschreibung <span className="font-normal opacity-60">(optional)</span></span>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value.slice(0, MAX_CATEGORY_DESCRIPTION))}
+          rows={2}
+          placeholder="Was genau zählt hier? z. B. Die ganze Keksdose, ohne zu fragen."
+          className="mt-1 w-full resize-none border-[3px] border-ink bg-paper p-2 text-base placeholder:opacity-50"
+        />
+        <span className="block text-right text-xs opacity-60">{description.length}/{MAX_CATEGORY_DESCRIPTION}</span>
+      </label>
       <label className="flex items-center gap-3 text-sm font-bold">
         Punkte: <span className="display w-8 text-center text-2xl text-alarm">{points}</span>
         <input type="range" min={MIN_CATEGORY_POINTS} max={MAX_CATEGORY_POINTS} value={points} onChange={(e) => setPoints(+e.target.value)} className="flex-1 accent-[var(--alarm)]" />

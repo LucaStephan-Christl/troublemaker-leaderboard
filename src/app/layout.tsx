@@ -7,12 +7,12 @@ const display = Bowlby_One({ weight: "400", subsets: ["latin"], variable: "--f-d
 const body = Bricolage_Grotesque({ subsets: ["latin"], variable: "--f-body" });
 
 export const metadata: Metadata = {
-  title: "Mobbing-Leaderboard",
-  description: "Wer mobbt am meisten? Fälle melden, bestätigen lassen, Krone kassieren.",
+  title: "Mobbing-Board bei Trihow",
+  description: "Wer mobbt am meisten bei Trihow? Fälle melden, bestätigen lassen, Krone kassieren.",
   robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = { themeColor: "#f2e8d3" };
+export const viewport: Viewport = { themeColor: "#f6f6f6" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

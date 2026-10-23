@@ -90,7 +90,7 @@ export default function TribunalPage() {
         <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-alarm">Hohes Gericht der Kaffeeküche</p>
         <h1 className="display text-5xl sm:text-6xl">Das Tribunal</h1>
         <p className="mt-3 max-w-xl">
-          Wische nach <b className="text-mint">rechts</b> zum Bestätigen, nach <b className="text-alarm">links</b> zum Ablehnen (oder Pfeiltasten ← →). Eine Bestätigung genügt, zwei Ablehnungen kippen den Fall.
+          Wische nach <b className="text-blue-2">rechts</b> zum Bestätigen, nach <b className="text-danger">links</b> zum Ablehnen (oder Pfeiltasten ← →). Eine Bestätigung genügt, zwei Ablehnungen kippen den Fall.
         </p>
       </div>
 
@@ -114,9 +114,9 @@ export default function TribunalPage() {
               </AnimatePresence>
             </div>
             <div className="mt-6 flex items-center justify-center gap-4">
-              <button className="btn btn-alarm min-w-36" onClick={() => vote(current, "reject")}>❌ Ablehnen</button>
+              <button className="btn btn-danger min-w-36" onClick={() => vote(current, "reject")}>❌ Ablehnen</button>
               <span className="text-sm font-bold opacity-60">{queue.length} offen</span>
-              <button className="btn !bg-mint min-w-36" onClick={() => vote(current, "approve")}>✅ Bestätigen</button>
+              <button className="btn btn-ok min-w-36" onClick={() => vote(current, "approve")}>✅ Bestätigen</button>
             </div>
           </>
         )}
@@ -124,7 +124,7 @@ export default function TribunalPage() {
         <AnimatePresence>
           {stamp && (
             <motion.div key={stamp.key} className="pointer-events-none fixed inset-0 z-[80] grid place-items-center" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <Stamp tone={stamp.verdict === "approve" ? "mint" : "alarm"} className="bg-paper">
+              <Stamp tone={stamp.verdict === "approve" ? "approve" : "reject"} className="bg-paper">
                 {stamp.verdict === "approve" ? "Bestätigt" : "Abgelehnt"}
               </Stamp>
             </motion.div>
@@ -157,8 +157,8 @@ export default function TribunalPage() {
 
 function StatusChip({ incident }: { incident: IncidentDTO }) {
   if (incident.status === "committed") return <span className="chip bg-mint">✅ +{incident.points}</span>;
-  if (incident.status === "rejected") return <span className="chip bg-alarm text-paper">🗑️ eingestellt</span>;
-  return <span className="chip bg-sun">⏳ wartet</span>;
+  if (incident.status === "rejected") return <span className="chip bg-danger text-paper">🗑️ eingestellt</span>;
+  return <span className="chip bg-sun text-paper">⏳ wartet</span>;
 }
 
 function SwipeCard({
@@ -209,14 +209,15 @@ function SwipeCard({
         <div className="mt-5 border-y-[3px] border-dashed border-ink py-4 text-center">
           <p className="text-5xl" aria-hidden>{incident.emoji}</p>
           <p className="display mt-2 text-2xl">{incident.categoryLabel}</p>
+          {incident.categoryDescription && <p className="mx-auto mt-1 max-w-xs text-sm opacity-70">{incident.categoryDescription}</p>}
           <p className="display mt-1 text-4xl text-alarm">+{incident.points}</p>
         </div>
         <p className="mt-4 min-h-12 text-center italic">{incident.note ? `„${incident.note}“` : <span className="opacity-50">Keine Aussage zur Sache.</span>}</p>
       </div>
       {top && (
         <>
-          <motion.div style={{ opacity: yes }} className="pointer-events-none absolute left-4 top-10 -rotate-12 border-[5px] border-mint px-3 py-1 display text-3xl text-mint">Bestätigt</motion.div>
-          <motion.div style={{ opacity: no }} className="pointer-events-none absolute right-4 top-10 rotate-12 border-[5px] border-alarm px-3 py-1 display text-3xl text-alarm">Abgelehnt</motion.div>
+          <motion.div style={{ opacity: yes }} className="pointer-events-none absolute left-4 top-10 -rotate-12 border-[5px] border-blue-2 px-3 py-1 display text-3xl text-blue-2">Bestätigt</motion.div>
+          <motion.div style={{ opacity: no }} className="pointer-events-none absolute right-4 top-10 rotate-12 border-[5px] border-danger px-3 py-1 display text-3xl text-danger">Abgelehnt</motion.div>
         </>
       )}
     </motion.article>

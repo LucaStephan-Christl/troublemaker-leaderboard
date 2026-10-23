@@ -1,0 +1,1 @@
+ALTER TABLE "custom_categories" ADD COLUMN "description" text;
