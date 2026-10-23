@@ -40,6 +40,7 @@ export const COWORKERS: Coworker[] = [
   { id: "philippe", name: "Philippe", emoji: "🕺", color: "linear-gradient(135deg, #C4FBD1, #239AE7)" },
   { id: "daria", name: "Daria", emoji: "🦸‍♀️", color: "linear-gradient(135deg, #ECEAF5, #E91E8C)" },
   { id: "dmitri", name: "Dmitri", emoji: "👨‍🦲", color: "linear-gradient(135deg, #FFE8EA, #F74857)" },
+  { id: "claude", name: "Claudia", emoji: "🤖", color: "linear-gradient(135deg, #FFC48E, #FFA653)" },
 ];
 
 export const COWORKER_BY_ID: Record<string, Coworker> = Object.fromEntries(
