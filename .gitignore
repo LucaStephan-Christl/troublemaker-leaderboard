@@ -24,3 +24,9 @@ test-results/
 .DS_Store
 *.log
 *.tsbuildinfo
+
+# lokale Datenbank
+.data/
+
+# Claude Code
+.claude/

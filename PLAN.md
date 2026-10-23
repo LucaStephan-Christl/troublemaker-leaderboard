@@ -14,13 +14,13 @@ and a very animated leaderboard crowns the **Mobbing-König:in**.
 | Rule | Decision |
 |---|---|
 | Accounts | None. Coworkers are hardcoded in `src/config/coworkers.ts`. |
-| "Who am I?" | First visit: pick your name from a list (stored in `localStorage` + cookie). Honor system, plus an optional shared team passcode (`SITE_PASSCODE` env var) so outsiders can't open the site. |
-| Submitting | Pick **who did it** (the "Täter:in"), pick a **category** (fixed point value), optional **victim**, optional one-line description. |
+| "Who am I?" | First visit: pick your name from a list (stored in `localStorage`). Pure honor system — **no PIN, no passcode**. |
+| Submitting | Pick **who did it** (the "Täter:in"), the **victim**, a **category** (fixed point value; anyone can add new ones in-app), optional one-line note. |
 | Approving | **One** other coworker confirms → incident becomes *committed* and points count. Approver ≠ submitter. |
 | Rejecting | **Two** rejections (≠ submitter) → incident is thrown out ("Verfahren eingestellt"). |
 | Anonymity | The submitter and the approver are stored (needed for the rules) but **never** returned by any API. UI only says "ein:e Kolleg:in hat bestätigt". |
 | Self-incidents | You can't accuse yourself (boring). The accused *may* approve their own incident → "Geständnis" bonus (+10 %). |
-| Spam protection | Max N submissions per person per day (server-side, keyed on the picked identity + IP hash). |
+| Spam protection | Max 10 submissions per person per 24 h (server-side). |
 | Seasons | Leaderboard has views: *Diese Woche / Dieser Monat / Gesamt*. Monthly winner gets archived in the Hall of Fame. |
 
 ## 2. Pages & features
@@ -78,13 +78,14 @@ and a very animated leaderboard crowns the **Mobbing-König:in**.
 
 ## 4. Data model (Drizzle / Postgres)
 
-Hardcoded in code (no tables): **coworkers**, **categories** (id, label, emoji, points).
+Hardcoded in code (no tables): **coworkers**, starter **categories** (id, label, emoji, points).
+Extra table `custom_categories` for categories coworkers create in the app.
 
 ```
 incidents
   id              uuid pk
   accused_id      text        -- coworker id (from config)
-  victim_id       text null   -- optional
+  victim_id       text        -- required
   category_id     text        -- from config
   points          int         -- snapshot of category points at submit time
   note            text null   -- max ~140 chars
@@ -140,11 +141,17 @@ src/
 5. **TV mode & polish** — `/tv`, easter eggs, mobile polish, a11y (`prefers-reduced-motion` turns off the heavy animations).
 6. **Deploy** — GitHub push, Vercel project, Neon integration, env vars, seed demo data for the first screenshot.
 
-## 7. Open questions (defaults in bold)
+## 7. Decisions (answered)
 
-1. **Coworker names** — need the list (name, optional emoji/nickname; photos optional).
-2. **Language** — **German UI** (matches the joke) or English?
-3. **Category list** — I'll propose ~12 funny starter categories with points; you tweak them.
-4. **Identity** — **honor system + shared passcode** (no accounts) — OK, or do you want a per-person PIN so nobody can approve "as someone else"?
-5. **Database** — **Neon Postgres via Vercel** OK?
-6. **Realtime** — **polling every few seconds** is enough, or do you want true live push?
+1. Coworker names + photos: provided later → placeholders in `src/config/coworkers.ts`.
+2. **German UI.**
+3. Categories are **self-defined**: starter set in config, plus anyone can add categories in the app (1–10 points).
+4. **Honor system only** — no PIN, no passcode.
+5. **Neon Postgres via Vercel** + Drizzle (local dev uses embedded PGlite, so no setup needed).
+6. **Polling** (SWR, ~5 s), everything in one Next.js app.
+
+## 8. Status
+
+- [x] Milestones 1–5 implemented (core loop, animations, insights, TV mode).
+- [ ] Real coworker list + photos.
+- [ ] Vercel project + Neon integration (milestone 6). The Neon migration path (`scripts/migrate.mts`) is written but not yet run against a real Neon DB.
