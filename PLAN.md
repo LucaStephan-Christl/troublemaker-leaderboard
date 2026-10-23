@@ -153,5 +153,6 @@ src/
 ## 8. Status
 
 - [x] Milestones 1–5 implemented (core loop, animations, insights, TV mode).
-- [ ] Real coworker list + photos.
+- [x] Real coworker list (first names; photos still to come).
+- [ ] Photos in `public/avatars/`.
 - [ ] Vercel project + Neon integration (milestone 6). The Neon migration path (`scripts/migrate.mts`) is written but not yet run against a real Neon DB.

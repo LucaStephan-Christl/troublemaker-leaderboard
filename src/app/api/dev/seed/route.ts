@@ -25,7 +25,7 @@ export async function POST() {
 
   const rows: (typeof schema.incidents.$inferInsert)[] = [];
   const now = Date.now();
-  for (let n = 0; n < 80; n++) {
+  for (let n = 0; n < 170; n++) {
     const accusedId = pick(weighted);
     let victimId = pick(COWORKERS).id;
     while (victimId === accusedId) victimId = pick(COWORKERS).id;

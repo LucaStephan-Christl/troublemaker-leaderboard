@@ -238,7 +238,7 @@ function IdentityGate() {
         <p className="mb-6 mt-3 max-w-prose">
           Keine Accounts, keine Passwörter – reine Ehrensache. Wir vertrauen dir. <span className="opacity-60">(Nicht wirklich.)</span>
         </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
           {COWORKERS.map((c, idx) => (
             <motion.button
               key={c.id}
@@ -248,7 +248,7 @@ function IdentityGate() {
               whileHover={{ y: -4, rotate: idx % 2 ? 2 : -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => { sfx("pop"); setMe(c.id); }}
-              className="brut-sm flex min-h-28 flex-col items-center justify-center gap-2 bg-paper p-3 hover:bg-sun"
+              className="brut-sm flex min-h-24 flex-col items-center justify-center gap-2 bg-paper p-2 hover:bg-sun"
             >
               <Avatar id={c.id} size={56} />
               <span className="font-extrabold">{c.name}</span>
